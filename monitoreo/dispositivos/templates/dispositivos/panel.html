@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Dispositivos - EcoEnergy</title>
+    <!-- Bootstrap opcional -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="container mt-4">
+
+    <h1 class="mb-4">Panel de Dispositivos - EcoEnergy</h1>
+    <p><strong>Consumo máximo permitido:</strong> {{ consumo_maximo }} W</p>
+
+    <table class="table table-bordered text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>Dispositivo</th>
+                <th>Consumo Actual (W)</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in dispositivos %}
+            <tr>
+                <td>{{ d.nombre }}</td>
+                <td>{{ d.consumo }}</td>
+                <td>
+                    {% if d.consumo <= consumo_maximo %} <span class="badge bg-success">{{ d.estado }}</span>
+                        {% else %}
+                        <span class="badge bg-danger">{{ d.estado }}</span>
+                        {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+
+</html>
