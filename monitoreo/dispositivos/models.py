@@ -12,6 +12,7 @@ class Categoria(models.Model):
 class Zona(models.Model):
     nombreZona = models.CharField(max_length=45)
     descripcionZona = models.CharField(max_length=200, blank=True, null=True)
+    ubicacion = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.nombreZona
@@ -20,9 +21,9 @@ class Zona(models.Model):
 class Dispositivo(models.Model):
     nombreDispositivo = models.CharField(max_length=45)
     modelo = models.CharField(max_length=45, blank=True, null=True)
-    estado = models.CharField(max_length=45)  
-    marca = models.CharField(max_length=45)
-    potencia = models.FloatField()
+    marca = models.CharField(max_length=45, blank=True, null=True)
+    potencia = models.FloatField(null=True, blank=True)
+    estado = models.BooleanField(default=True)  # True = Activo, False = Inactivo
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name="dispositivos")
     zona = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name="dispositivos")
 
@@ -45,7 +46,6 @@ class Alerta(models.Model):
     fechaHora = models.DateTimeField()
     nivelCriticidad = models.CharField(max_length=45)
     descripcionAlerta = models.CharField(max_length=200, blank=True, null=True)
-
     dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name="alertas")
 
     def __str__(self):
