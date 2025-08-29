@@ -47,6 +47,7 @@ class Alerta(models.Model):
     nivelCriticidad = models.CharField(max_length=45)
     descripcionAlerta = models.CharField(max_length=200, blank=True, null=True)
     dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name="alertas")
+    medicion = models.ForeignKey(Medicion, on_delete=models.CASCADE, related_name="alertas")  # Nueva relación
 
     def __str__(self):
         return f"Alerta {self.tipoAlerta} en {self.dispositivo.nombreDispositivo}"
