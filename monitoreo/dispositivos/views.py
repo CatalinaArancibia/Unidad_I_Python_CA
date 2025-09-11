@@ -1,24 +1,31 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from .models import Measurement, Alert, Device, Category
+from datetime import timedelta
+from django.utils import timezone
 
-def inicio(request):
-    return HttpResponse("Hola desde Django!")
-
-def panel_dispositivos(request):
-    dispositivos = [
-        {"nombre": "Sensor Temperatura", "consumo": 50},
-        {"nombre": "Medidor Solar", "consumo": 120},
-        {"nombre": "Sensor Movimiento", "consumo": 30},
-        {"nombre": "Calefactor", "consumo": 200},
-    ]
-
-    consumo_maximo = 100
-
-    # Agregamos un campo "estado" para mostrar si está dentro o fuera del límite
-    for d in dispositivos:
-        d["estado"] = "Dentro del límite" if d["consumo"] <= consumo_maximo else "Excede el límite"
-
-    return render(request, "dispositivos/panel.html", {
-        "dispositivos": dispositivos,
-        "consumo_maximo": consumo_maximo
-    })
+def dashboard(request):
+    # Últimas 10 mediciones
+    last_measurements = Measurement.objects.all().order_by('-created_at')[:10]
+    
+    # Alertas de la semana
+    one_week_ago = timezone.now() - timedelta(weeks=1)
+    weekly_alerts = Alert.objects.filter(created_at__gte=one_week_ago)
+    
+    # Listado de dispositivos con filtro por categoría
+    category_filter = request.GET.get('category')
+    devices = Device.objects.all()
+    
+    if category_filter:
+        devices = devices.filter(category_idcategory__category_name=category_filter)
+    
+    # Obtener todas las categorías para el filtro
+    categories = Category.objects.all()
+    
+    # Pasar toda la información al template
+    context = {
+        'last_measurements': last_measurements,
+        'weekly_alerts': weekly_alerts,
+        'devices': devices,
+        'categories': categories,
+    }
+    return render(request, 'dashboard.html', context)

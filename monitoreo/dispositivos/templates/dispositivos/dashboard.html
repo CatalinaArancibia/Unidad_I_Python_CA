@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Agregar Bootstrap desde el CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJzLr6+e2Yz3Af6bJ2k5XaH09O9xVlzW9A/hzVxu3vVtN8uaF7Wy9e/Zlbh6" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Dashboard</h2>
+
+    <!-- Últimas 10 Mediciones -->
+    <h3>Últimas 10 Mediciones</h3>
+    <ul class="list-group">
+        {% for measurement in last_measurements %}
+            <li class="list-group-item">
+                <strong>{{ measurement.device_iddevice.device_name }}</strong><br>
+                Consumo: {{ measurement.consumption }} kWh | Voltaje: {{ measurement.voltage }} V
+            </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Alertas de la Semana -->
+    <h3 class="mt-4">Alertas de la Semana</h3>
+    <ul class="list-group">
+        {% for alert in weekly_alerts %}
+            <li class="list-group-item">
+                <strong>{{ alert.alert_type }}</strong><br>
+                <span class="text-muted">{{ alert.severity_level }}</span> | 
+                <span>{{ alert.created_at }}</span><br>
+                <p>{{ alert.message }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Filtro por Categoría y Listado de Dispositivos -->
+    <h2 class="mt-4">Listado de Dispositivos</h2>
+    <form method="get">
+        <div class="form-group mb-4">
+            <label for="category">Filtrar por Categoría:</label>
+            <select name="category" class="form-control">
+                <option value="">Todos</option>
+                {% for category in categories %}
+                    <option value="{{ category.category_name }}" {% if category.category_name == request.GET.category %}selected{% endif %}>{{ category.category_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+    </form>
+
+    <ul class="list-group mt-4">
+        {% for device in devices %}
+            <li class="list-group-item">
+                <strong>{{ device.device_name }}</strong><br>
+                Estado: {{ device.device_status }} | Categoría: {{ device.category_idcategory.category_name }} | Zona: {{ device.zone_idzone.zone_name }}
+            </li>
+        {% endfor %}
+    </ul>
+
+</div>
+
+<!-- Agregar el script de Bootstrap para funcionalidades interactivas como dropdowns, modals, etc. -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-OgVRvuATP1z7Jj3pCsW2tFYPfW5x5H/HX4lZ4cYrfzB8V9FdxhWgkzQxS25V8bxp" crossorigin="anonymous"></script>
+
+</body>
+</html>
