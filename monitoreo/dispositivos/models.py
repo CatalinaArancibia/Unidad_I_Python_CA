@@ -61,6 +61,7 @@ class Device(BaseModel):
     device_name = models.CharField(max_length=45)
     category_idcategory = models.ForeignKey(Category, on_delete=models.CASCADE)
     zone_idzone = models.ForeignKey('Zone', on_delete=models.CASCADE)
+    product_idproduct = models.ForeignKey(Product, on_delete=models.CASCADE)  # Relación con Product
 
     def __str__(self):
         return self.device_name
@@ -73,7 +74,7 @@ class Measurement(BaseModel):
     alert_idalert = models.ForeignKey('Alert', on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.device_iddevice.device_name} - {self.date_time}"
+        return f"{self.device_iddevice.device_name} - {self.created_at}"
 
 
 class Alert(BaseModel):
@@ -86,7 +87,7 @@ class Alert(BaseModel):
     message = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
-        return f"Alert {self.alert_type} on {self.date_time}"
+        return f"Alert {self.alert_type} on {self.created_at}"
 
 
 class Product_Alert(models.Model):

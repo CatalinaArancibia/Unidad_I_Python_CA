@@ -179,10 +179,9 @@
                         <h6 class="card-title mb-3">Dispositivos por Zona</h6>
                         <ul class="list-unstyled mb-3">
                             {% for zona in resumen_zona %}
-                            <li class="mb-1">{{ zona.nombre }}: <span class="badge bg-success">{{ zona.cantidad
-                                    }}</span></li>
+                                <li class="mb-1">{{ zona.nombre }}: <span class="badge bg-success">{{ zona.cantidad }}</span></li>
                             {% empty %}
-                            <li>No hay zonas.</li>
+                                <li>No hay zonas.</li>
                             {% endfor %}
                         </ul>
                         <a href="#" class="btn btn-outline-primary btn-sm">Ver más</a>
@@ -196,8 +195,7 @@
                         <ul class="list-unstyled mb-3">
                             <li class="mb-1">Grave: <span class="badge bg-dark">{{ resumen_alertas.GRAVE }}</span></li>
                             <li class="mb-1">Alto: <span class="badge bg-danger">{{ resumen_alertas.ALTO }}</span></li>
-                            <li class="mb-1">Mediano: <span class="badge bg-warning text-dark">{{
-                                    resumen_alertas.MEDIANO }}</span></li>
+                            <li class="mb-1">Mediano: <span class="badge bg-warning text-dark">{{ resumen_alertas.MEDIANO }}</span></li>
                         </ul>
                         <a href="#" class="btn btn-outline-primary btn-sm">Ver más</a>
                     </div>
