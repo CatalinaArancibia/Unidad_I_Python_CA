@@ -1,7 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import Category, Zone, Device, Measurement, Alert
 from django.utils import timezone
 from datetime import timedelta
+from django.core.paginator import Paginator
 
 def dashboard(request):
     # Resumen por categoría
@@ -47,3 +48,52 @@ def dashboard(request):
         "zonas": zonas,
     }
     return render(request, "dispositivos/dashboard.html", context)
+
+def devices(request):
+    categorias = Category.objects.all()
+    zonas = Zone.objects.all()
+    dispositivos = Device.objects.select_related('category_idcategory', 'zone_idzone').all()
+
+    # Filtros
+    categoria_id = request.GET.get('categoria')
+    zona_id = request.GET.get('zona')
+    search = request.GET.get('search')
+
+    if categoria_id:
+        dispositivos = dispositivos.filter(category_idcategory_id=categoria_id)
+    if zona_id:
+        dispositivos = dispositivos.filter(zone_idzone_id=zona_id)
+    if search:
+        dispositivos = dispositivos.filter(device_name__icontains=search)
+
+    # Paginación
+    paginator = Paginator(dispositivos, 10)  # 10 dispositivos por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'categorias': categorias,
+        'zonas': zonas,
+        'dispositivos': page_obj.object_list,
+        'is_paginated': page_obj.has_other_pages(),
+        'page_obj': page_obj,
+        'request': request,
+    }
+    return render(request, "dispositivos/devices.html", context)
+
+def device_detail(request, device_id):
+    device = get_object_or_404(Device, id=device_id)
+    return render(request, "dispositivos/device_detail.html", {"device": device})
+
+def measurements(request):
+    mediciones = Measurement.objects.select_related('device_iddevice').order_by('-created_at')
+    paginator = Paginator(mediciones, 50)  # 50 mediciones por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'mediciones': page_obj.object_list,
+        'is_paginated': page_obj.has_other_pages(),
+        'page_obj': page_obj,
+    }
+    return render(request, "dispositivos/measurements.html", context)

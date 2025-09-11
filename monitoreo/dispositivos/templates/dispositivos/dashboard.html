@@ -141,11 +141,9 @@
     <!-- Sidebar Mejorado -->
     <div class="sidebar">
         <h3><i class="bi bi-lightning-charge-fill"></i> EcoEnergy</h3>
-        <a href="#" class="active"><i class="bi bi-building"></i> Mi Empresa</a>
-        <a href="#"><i class="bi bi-box-seam"></i> Mis Productos</a>
-        <a href="#"><i class="bi bi-bag-check"></i> Pedidos</a>
-        <a href="#"><i class="bi bi-exclamation-triangle"></i> Alertas</a>
-        <a href="#"><i class="bi bi-cpu"></i> Dispositivos</a>
+        <a href="{% url 'dashboard' %}" class="active"><i class="bi bi-building"></i> Mi Empresa</a>
+        <a href="{% url 'devices' %}"><i class="bi bi-cpu"></i> Dispositivos</a>
+        <a href="{% url 'measurements' %}"><i class="bi bi-box-seam"></i> Mediciones</a>
         <hr style="border-color: #343a40;">
         <a href="#" class="logout"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
     </div>
