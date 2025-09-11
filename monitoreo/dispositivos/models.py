@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # -----------------------------
 # Modelo Base con atributos comunes
@@ -26,18 +27,21 @@ class BaseModel(models.Model):
 
 class Organization(models.Model):
     id_organization = models.AutoField(primary_key=True)
-    organization_name = models.CharField(max_length=255)
-    email = models.EmailField(max_length=255)
-    password = models.CharField(max_length=255)
-    organization_description = models.TextField()
-    status = models.CharField(max_length=10, choices=BaseModel.ESTADOS, default="ACTIVO")  # Usar ESTADOS de BaseModel
-    created_at = models.DateTimeField(auto_now_add=True)  # se asigna al crear
-    updated_at = models.DateTimeField(auto_now=True)  # se actualiza cada vez que se guarda
-    deleted_at = models.DateTimeField(null=True, blank=True)  # opcional para borrado lógico
+    organization_name = models.CharField(max_length=255, unique=True)
+    organization_description = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=10, choices=[("ACTIVO", "Activo"), ("INACTIVO", "Inactivo")], default="ACTIVO")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.organization_name
 
+
+class OrganizationUser(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    # Puedes agregar roles, permisos, etc.
 
 class Category(BaseModel):
     category_name = models.CharField(max_length=45)
