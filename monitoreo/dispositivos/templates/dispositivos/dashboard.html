@@ -247,7 +247,7 @@
                             {% for alerta in alertas_recientes %}
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>
-                                    <strong>{{ alerta.alert_type }}</strong>
+                                    <strong>{{ alerta.device.device_name }}</strong>
                                     <span class="badge 
                 {% if alerta.severity_level == 'GRAVE' %}bg-dark
                 {% elif alerta.severity_level == 'ALTO' %}bg-danger
@@ -267,7 +267,7 @@
         </div>
 
         <!-- Filtros -->
-        <div class="row mb-3">
+        <!-- <div class="row mb-3">
             <div class="col-12">
                 <h6 class="section-title">Dispositivos</h6>
                 <div class="d-flex flex-wrap gap-2 mb-3">
@@ -286,10 +286,10 @@
                     <button class="btn btn-dark">Aplicar filtros</button>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Lista de Dispositivos -->
-        <div class="row">
+        <!-- <div class="row">
             {% for d in dispositivos %}
             <div class="col-md-4">
                 <div class="device-card">
@@ -302,7 +302,7 @@
             {% empty %}
             <div class="col-12">No hay dispositivos.</div>
             {% endfor %}
-        </div>
+        </div> -->
 
         <div class="footer mt-5">
             © 2025 EcoEnergy &nbsp;|&nbsp; <a href="#" class="text-decoration-none text-muted">Soporte</a>
