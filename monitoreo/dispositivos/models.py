@@ -15,7 +15,6 @@ class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)  # se asigna al crear
     updated_at = models.DateTimeField(auto_now=True)  # se actualiza cada vez que se guarda
     deleted_at = models.DateTimeField(null=True, blank=True)  # opcional para borrado lógico
-    organization = models.ForeignKey('Organization', on_delete=models.CASCADE)  # Relación con Organization
 
     class Meta:
         abstract = True  # no crea tabla, solo se hereda
@@ -25,14 +24,10 @@ class BaseModel(models.Model):
 # Tablas principales
 # ------------------------------
 
-class Organization(models.Model):
+class Organization(BaseModel):
     id_organization = models.AutoField(primary_key=True)
     organization_name = models.CharField(max_length=255, unique=True)
     organization_description = models.TextField(blank=True, null=True)
-    status = models.CharField(max_length=10, choices=[("ACTIVO", "Activo"), ("INACTIVO", "Inactivo")], default="ACTIVO")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    deleted_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.organization_name
@@ -66,6 +61,7 @@ class Device(BaseModel):
     category_idcategory = models.ForeignKey(Category, on_delete=models.CASCADE)
     zone_idzone = models.ForeignKey('Zone', on_delete=models.CASCADE)
     product_idproduct = models.ForeignKey(Product, on_delete=models.CASCADE)  # Relación con Product
+    organization = models.ForeignKey('Organization', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.device_name
@@ -75,7 +71,6 @@ class Measurement(BaseModel):
     consumption = models.FloatField()
     voltage = models.FloatField()
     device_iddevice = models.ForeignKey(Device, on_delete=models.CASCADE)
-    alert_idalert = models.ForeignKey('Alert', on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.device_iddevice.device_name} - {self.created_at}"
@@ -89,6 +84,8 @@ class Alert(BaseModel):
         default='MEDIANO'
     )
     message = models.CharField(max_length=200, blank=True, null=True)
+    device = models.ForeignKey(Device, on_delete=models.CASCADE)
+    measurement = models.ForeignKey(Measurement, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"Alert {self.alert_type} on {self.created_at}"
@@ -128,6 +125,7 @@ class Zone(BaseModel):
     zone_name = models.CharField(max_length=45)
     zone_description = models.CharField(max_length=200, blank=True, null=True)
     location = models.CharField(max_length=100, blank=True, null=True)
+    organization = models.ForeignKey('Organization', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.zone_name
