@@ -1,53 +1,131 @@
 from django.db import models
+from django.contrib.auth.models import User
+
+# -----------------------------
+# Modelo Base con atributos comunes
+# -----------------------------
+
+class BaseModel(models.Model):
+    ESTADOS = [
+        ("ACTIVO", "Activo"),
+        ("INACTIVO", "Inactivo"),
+    ]
+    
+    status = models.CharField(max_length=10, choices=ESTADOS, default="ACTIVO")
+    created_at = models.DateTimeField(auto_now_add=True)  # se asigna al crear
+    updated_at = models.DateTimeField(auto_now=True)  # se actualiza cada vez que se guarda
+    deleted_at = models.DateTimeField(null=True, blank=True)  # opcional para borrado lógico
+
+    class Meta:
+        abstract = True  # no crea tabla, solo se hereda
 
 
-class Categoria(models.Model):
-    nombreCategoria = models.CharField(max_length=45)
-    descripcionCategoria = models.CharField(max_length=200, blank=True, null=True)
+# ------------------------------
+# Tablas principales
+# ------------------------------
 
-    def __str__(self):
-        return self.nombreCategoria
-
-
-class Zona(models.Model):
-    nombreZona = models.CharField(max_length=45)
-    descripcionZona = models.CharField(max_length=200, blank=True, null=True)
-    ubicacion = models.CharField(max_length=100, blank=True, null=True)
-
-    def __str__(self):
-        return self.nombreZona
-
-
-class Dispositivo(models.Model):
-    nombreDispositivo = models.CharField(max_length=45)
-    modelo = models.CharField(max_length=45, blank=True, null=True)
-    marca = models.CharField(max_length=45, blank=True, null=True)
-    potencia = models.FloatField(null=True, blank=True)
-    estado = models.BooleanField(default=True)  # True = Activo, False = Inactivo
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name="dispositivos")
-    zona = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name="dispositivos")
-
-    def __str__(self):
-        return self.nombreDispositivo
-
-
-class Medicion(models.Model):
-    fechaHora = models.DateTimeField()
-    consumo = models.FloatField()
-    voltaje = models.FloatField()
-    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name="mediciones")
+class Organization(BaseModel):
+    id_organization = models.AutoField(primary_key=True)
+    organization_name = models.CharField(max_length=255, unique=True)
+    organization_description = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.dispositivo.nombreDispositivo} - {self.fechaHora}"
+        return self.organization_name
 
 
-class Alerta(models.Model):
-    tipoAlerta = models.CharField(max_length=45)
-    fechaHora = models.DateTimeField()
-    nivelCriticidad = models.CharField(max_length=45)
-    descripcionAlerta = models.CharField(max_length=200, blank=True, null=True)
-    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name="alertas")
-    medicion = models.ForeignKey(Medicion, on_delete=models.CASCADE, related_name="alertas", null=True, blank=True)  # Nueva relación
+class OrganizationUser(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    # Puedes agregar roles, permisos, etc.
+
+class Category(BaseModel):
+    category_name = models.CharField(max_length=45)
+    category_description = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
-        return f"Alerta {self.tipoAlerta} en {self.dispositivo.nombreDispositivo}"
+        return self.category_name
+
+
+class Product(BaseModel):
+    product_name = models.CharField(max_length=45)
+    power = models.FloatField()
+    category_idcategory = models.ForeignKey(Category, on_delete=models.CASCADE)
+    model_idmodel = models.ForeignKey('Model', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.product_name
+
+
+class Device(BaseModel):
+    device_name = models.CharField(max_length=45)
+    category_idcategory = models.ForeignKey(Category, on_delete=models.CASCADE)
+    zone_idzone = models.ForeignKey('Zone', on_delete=models.CASCADE)
+    product_idproduct = models.ForeignKey(Product, on_delete=models.CASCADE)  # Relación con Product
+    organization = models.ForeignKey('Organization', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.device_name
+
+
+class Measurement(BaseModel):
+    consumption = models.FloatField()
+    voltage = models.FloatField()
+    device_iddevice = models.ForeignKey(Device, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.device_iddevice.device_name} - {self.created_at}"
+
+
+class Alert(BaseModel):
+    alert_type = models.CharField(max_length=45)
+    severity_level = models.CharField(
+        max_length=10,
+        choices=[('MEDIANO', 'Mediano'), ('ALTO', 'Alto'), ('GRAVE', 'Grave')],
+        default='MEDIANO'
+    )
+    message = models.CharField(max_length=200, blank=True, null=True)
+    device = models.ForeignKey(Device, on_delete=models.CASCADE)
+    measurement = models.ForeignKey(Measurement, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f"Alert {self.alert_type} on {self.created_at}"
+
+
+class Product_Alert(models.Model):
+    product_idproduct = models.ForeignKey(Product, on_delete=models.CASCADE)
+    alert_idalert = models.ForeignKey(Alert, on_delete=models.CASCADE)
+    min_value = models.FloatField()
+    max_value = models.FloatField()
+
+    class Meta:
+        unique_together = ['product_idproduct', 'alert_idalert']  # Asegura que no haya duplicados de la relación
+
+    def __str__(self):
+        return f"Alert {self.alert_idalert.alert_type} for Product {self.product_idproduct.product_name}"
+
+class Model(BaseModel):
+    model_name = models.CharField(max_length=45)
+    model_description = models.CharField(max_length=200, blank=True, null=True)
+    
+    # Relación de muchos a uno, un modelo tiene una marca
+    brand_idbrand = models.ForeignKey('Brand', on_delete=models.CASCADE)  # Relación entre Modelo y Marca
+
+    def __str__(self):
+        return self.model_name
+    
+class Brand(BaseModel):
+    brand_name = models.CharField(max_length=45)
+    brand_description = models.CharField(max_length=200, blank=True, null=True)
+
+    def __str__(self):
+        return self.brand_name
+    
+
+class Zone(BaseModel):
+    zone_name = models.CharField(max_length=45)
+    zone_description = models.CharField(max_length=200, blank=True, null=True)
+    location = models.CharField(max_length=100, blank=True, null=True)
+    organization = models.ForeignKey('Organization', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.zone_name
